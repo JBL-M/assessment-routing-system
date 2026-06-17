@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Routing System Dashboard</title>
+    <link rel="stylesheet" href="{% static 'main/style.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Assessment Routing System Dashboard</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="#">Assessments</a></li>
+            <li><a href="#">Routing</a></li>
+        </ul>
+
+    
