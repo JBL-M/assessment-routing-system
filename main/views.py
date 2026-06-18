@@ -12,3 +12,13 @@ def signup_view(request):
 
 def logout_view(request):
     return django.shortcuts.redirect('home')
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def home(request):
+
+    return django.shortcuts.render(
+        request,
+        'main/home.html'
+    )
