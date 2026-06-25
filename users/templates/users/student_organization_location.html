@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="mb-2">Organization Location</h3>
+                <p class="text-muted mb-4">Use the map as a visual aid, search for a place, or click directly on the map. The nearest road will be detected automatically and can be edited.</p>
+
+                <form method="post" id="location-form">
+                    {% csrf_token %}
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-8">
+                            <label for="location-search" class="form-label">Search Location</label>
+                            <div class="input-group">
+                                <input type="text" id="location-search" class="form-control" placeholder="Search by organization area or address">
+                                <button type="button" class="btn btn-outline-primary" id="search-btn">Find</button>
+                            </div>
+                            <div class="form-text">Powered by OpenStreetMap search.</div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="button" class="btn btn-outline-dark w-100" id="my-location-btn">Use My Current Location</button>
+                        </div>
+                    </div>
+
+                    <div id="location-map" style="height: 420px; border-radius: 8px; border: 1px solid #dee2e6;" class="mb-3"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="{{ form.organization_location.id_for_label }}" class="form-label">Organization Location</label>
+                            {{ form.organization_location }}
+                            {% for error in form.organization_location.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.organization_main_road.id_for_label }}" class="form-label">Main Road</label>
+                            {{ form.organization_main_road }}
+                            {% for error in form.organization_main_road.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    {{ form.organization_latitude }}
+                    {{ form.organization_longitude }}
+
+                    {% for error in form.non_field_errors %}
+                        <div class="text-danger small mt-2">{{ error }}</div>
+                    {% endfor %}
+
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Save Location</button>
+                        <a href="{% url 'student_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+/>
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+></script>
+<script>
+(function () {
+    const latInput = document.getElementById('id_organization_latitude');
+    const lngInput = document.getElementById('id_organization_longitude');
+    const locationInput = document.getElementById('id_organization_location');
+    const roadInput = document.getElementById('id_organization_main_road');
+
+    const initialLat = parseFloat(latInput.value || '-1.286389');
+    const initialLng = parseFloat(lngInput.value || '36.817223');
+
+    const map = L.map('location-map').setView([initialLat, initialLng], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let marker = L.marker([initialLat, initialLng], { draggable: true }).addTo(map);
+
+    function setPosition(lat, lng) {
+        marker.setLatLng([lat, lng]);
+        map.setView([lat, lng], 15);
+        latInput.value = lat.toFixed(6);
+        lngInput.value = lng.toFixed(6);
+    }
+
+    async function reverseGeocode(lat, lng) {
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+            if (!response.ok) {
+                return;
+            }
+            const data = await response.json();
+            const address = data.address || {};
+
+            if (!locationInput.value || locationInput.value.trim() === '') {
+                locationInput.value = data.display_name || '';
+            }
+
+            const detectedRoad = address.road || address.highway || address.pedestrian || '';
+            if (detectedRoad) {
+                roadInput.value = detectedRoad;
+            }
+        } catch (error) {
+            // Ignore reverse-geocoding failures and allow manual entry.
+        }
+    }
+
+    map.on('click', function (event) {
+        const lat = event.latlng.lat;
+        const lng = event.latlng.lng;
+        setPosition(lat, lng);
+        reverseGeocode(lat, lng);
+    });
+
+    marker.on('dragend', function () {
+        const position = marker.getLatLng();
+        setPosition(position.lat, position.lng);
+        reverseGeocode(position.lat, position.lng);
+    });
+
+    document.getElementById('search-btn').addEventListener('click', async function () {
+        const query = document.getElementById('location-search').value.trim();
+        if (!query) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(query)}`);
+            if (!response.ok) {
+                return;
+            }
+            const results = await response.json();
+            if (!results || !results.length) {
+                return;
+            }
+
+            const best = results[0];
+            const lat = parseFloat(best.lat);
+            const lng = parseFloat(best.lon);
+            setPosition(lat, lng);
+            locationInput.value = best.display_name || query;
+            reverseGeocode(lat, lng);
+        } catch (error) {
+            // Ignore search failures and allow manual entry.
+        }
+    });
+
+    document.getElementById('my-location-btn').addEventListener('click', function () {
+        if (!navigator.geolocation) {
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(function (position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            setPosition(lat, lng);
+            reverseGeocode(lat, lng);
+        });
+    });
+
+    if (!latInput.value || !lngInput.value) {
+        setPosition(initialLat, initialLng);
+    } else {
+        reverseGeocode(initialLat, initialLng);
+    }
+})();
+</script>
+{% endblock %}

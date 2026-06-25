@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Assigned Students</h2>
+<p class="text-muted">Filter assigned students by their submitted details, then generate an optimized visit route.</p>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Course</label>
+                <select name="course" class="form-select">
+                    <option value="">All courses</option>
+                    {% for item in course_options %}
+                        <option value="{{ item }}" {% if selected_course == item %}selected{% endif %}>{{ item }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Attachment Type</label>
+                <select name="attachment_type" class="form-select">
+                    <option value="">All types</option>
+                    {% for value, label in attachment_choices %}
+                        <option value="{{ value }}" {% if selected_attachment_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Year</label>
+                <select name="year_of_study" class="form-select">
+                    <option value="">Any year</option>
+                    {% for yr in year_options %}
+                        <option value="{{ yr }}" {% if selected_year == yr|stringformat:'s' %}selected{% endif %}>Year {{ yr }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Main Road Contains</label>
+                <input type="text" class="form-control" name="road" value="{{ selected_road }}" placeholder="e.g. Thika Road">
+            </div>
+
+            <div class="col-md-8">
+                <label class="form-label">Search</label>
+                <input type="text" class="form-control" name="search" value="{{ selected_search }}" placeholder="Name, school ID, organization, location, or email">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Start Latitude</label>
+                <input type="text" class="form-control" name="start_lat" value="{{ start_lat }}" placeholder="Optional">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Start Longitude</label>
+                <input type="text" class="form-control" name="start_lng" value="{{ start_lng }}" placeholder="Optional">
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <button type="submit" name="generate_route" value="1" class="btn btn-success">Generate Best Route</button>
+                <a href="{% url 'view_assigned_students' %}" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <strong>Filtered Assigned Students ({{ students|length }})</strong>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-bordered table-sm mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>School ID</th>
+                    <th>Course</th>
+                    <th>Year</th>
+                    <th>Attachment Type</th>
+                    <th>Organization</th>
+                    <th>Location</th>
+                    <th>Main Road</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                    <tr>
+                        <td>{{ student.first_name }} {{ student.last_name }}</td>
+                        <td>{{ student.profile.school_id }}</td>
+                        <td>{{ student.profile.course }}</td>
+                        <td>{% if student.profile.year_of_study %}{{ student.profile.year_of_study }}{% endif %}</td>
+                        <td>{{ student.profile.get_attachment_type_display }}</td>
+                        <td>{{ student.profile.organization_name }}</td>
+                        <td>{{ student.profile.organization_location }}</td>
+                        <td>{{ student.profile.organization_main_road }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8">No assigned students match the selected filters.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if generate_route %}
+<div class="card shadow-sm">
+    <div class="card-header">
+        <strong>Best Route Order</strong>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-bordered table-sm mb-0">
+            <thead>
+                <tr>
+                    <th>Stop #</th>
+                    <th>Student</th>
+                    <th>Organization</th>
+                    <th>Location</th>
+                    <th>Main Road</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in optimized_students %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ student.first_name }} {{ student.last_name }}</td>
+                        <td>{{ student.profile.organization_name }}</td>
+                        <td>{{ student.profile.organization_location }}</td>
+                        <td>{{ student.profile.organization_main_road }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5">No route could be generated from the selected students.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

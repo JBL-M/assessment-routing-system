@@ -1,23 +1,71 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Register</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-<h2>Register</h2>
+{% block content %}<div class="row justify-content-center">
 
-<form method="POST">
+    <div class="col-md-5">
 
-    {% csrf_token %}
+        <div class="card shadow">
 
-    {{ form.as_p }}
+            <div class="card-body">
 
-    <button type="submit">
-        Register
-    </button>
-    <a href="{% url 'login' %}">Already have an account? Login here.</a>
-</form>
+    <h2>Create an Account</h2>
 
-</body>
-</html>
+    <form action="" method="POST">
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        <div>
+            <label for="id_first_name">First Name(s):</label>
+            {{ form.first_name }}
+            {{ form.first_name.errors }}
+        </div>
+        <br>
+
+        <div>
+            <label for="id_last_name">Last Name:</label>
+            {{ form.last_name }}
+            {{ form.last_name.errors }}
+        </div>
+        <br>
+
+        <div>
+            <label for="id_email">Email Address:</label>
+            {{ form.email }}
+            {{ form.email.errors }}
+        </div>
+        <br>
+
+        <div class="mb-2 text-muted">
+            New accounts are registered as <strong>Student</strong>.
+        </div>
+
+        <div>
+            <label for="id_password">Password:</label>
+            {{ form.password }}
+            {{ form.password.errors }}
+        </div>
+        <br>
+
+        <div>
+            <label for="id_confirm_password">Confirm Password:</label>
+            {{ form.confirm_password }}
+            {{ form.confirm_password.errors }}
+        </div>
+        <br>
+
+        <div>
+            <button type="submit">Register</button>
+        </div>
+
+        <p>Already have an account? <a href="{% url 'login' %}">Login here</a>.</p>
+
+    </form>
+     </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

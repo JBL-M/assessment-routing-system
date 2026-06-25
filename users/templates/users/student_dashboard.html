@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-9 col-lg-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <h3>Student Dashboard</h3>
+                <p>Welcome, {{ request.user.first_name }}. Update your attachment details below.</p>
+
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                            {{ form.first_name }}
+                            {% for error in form.first_name.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                            {{ form.last_name }}
+                            {% for error in form.last_name.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.school_id.id_for_label }}" class="form-label">School ID</label>
+                            {{ form.school_id }}
+                            {% for error in form.school_id.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.course.id_for_label }}" class="form-label">Course</label>
+                            {{ form.course }}
+                            {% for error in form.course.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.year_of_study.id_for_label }}" class="form-label">Year of Study</label>
+                            {{ form.year_of_study }}
+                            {% for error in form.year_of_study.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.attachment_type.id_for_label }}" class="form-label">Type of Attachment</label>
+                            {{ form.attachment_type }}
+                            {% for error in form.attachment_type.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.organization_name.id_for_label }}" class="form-label">Organization Name</label>
+                            {{ form.organization_name }}
+                            {% for error in form.organization_name.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label d-block">Organization Location</label>
+                            {% if profile.organization_location %}
+                                <div class="small text-muted mb-2">{{ profile.organization_location }}</div>
+                            {% else %}
+                                <div class="small text-muted mb-2">Not set yet.</div>
+                            {% endif %}
+                            {% if profile.organization_main_road %}
+                                <div class="small text-muted mb-2">Main road: {{ profile.organization_main_road }}</div>
+                            {% endif %}
+                            <a href="{% url 'student_organization_location' %}" class="btn btn-outline-secondary btn-sm">
+                                Open Location Map Page
+                            </a>
+                        </div>
+                    </div>
+
+                    {% for error in form.non_field_errors %}
+                        <div class="text-danger small mt-2">{{ error }}</div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-primary mt-4">Save Details</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

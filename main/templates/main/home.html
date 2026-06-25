@@ -1,23 +1,47 @@
-{% load static %}
-<!DOCTYPE html>
+{% extends 'base.html' %}
 
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assessment Routing System Dashboard</title>
-    <link rel="stylesheet" href="{% static 'main/style.css' %}">
-</head>
-<body>
-    <header>
-        <h1>Assessment Routing System Dashboard</h1>
-    </header>
+{% block content %}
 
-    <nav>
-        <ul>
-            <li><a href="{% url 'home' %}">Home</a></li>
-            <li><a href="#">Assessments</a></li>
-            <li><a href="#">Routing</a></li>
-        </ul>
+<h2>Dashboard</h2>
 
-    
+<div class="row">
+
+    <div class="col-md-4">
+
+        <div class="card p-3">
+
+            <h4>Total Students</h4>
+
+            <h2>{{ total_students }}</h2>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="card p-3">
+
+            <h4>Total Routes</h4>
+
+            <h2>{{ total_routes }}</h2>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="card p-3">
+
+            <h4>Total Supervisors</h4>
+
+            <h2>{{ total_supervisors }}</h2>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

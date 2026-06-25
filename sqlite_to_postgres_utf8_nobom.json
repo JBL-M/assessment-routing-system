@@ -1,0 +1,114 @@
+[
+{
+  "model": "auth.group",
+  "fields": {
+    "name": "Admin",
+    "permissions": []
+  }
+},
+{
+  "model": "auth.group",
+  "fields": {
+    "name": "Supervisor",
+    "permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$pNk61owg5dsF8iU53OnBcE$W30l/3iXI30ipEOlIRJhCAXHz13DMHBk2Oog25PChzA=",
+    "last_login": "2026-06-24T08:09:35.830Z",
+    "is_superuser": false,
+    "username": "joe.mapelu@strathmore.edu",
+    "first_name": "Joe",
+    "last_name": "Mapelu",
+    "email": "joe.mapelu@strathmore.edu",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-06-23T05:35:22.343Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$qnoK4KAmMzkWkTBA3hMFiM$CG3kAtWc4Yns6TN0BixZVX5RviM2sxxnwiufuygW/VU=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "dollan.ochele@strathmore.edu",
+    "first_name": "Dollan",
+    "last_name": "Ochele",
+    "email": "dollan.ochele@strathmore.edu",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-06-24T08:23:19.676Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "5e8wkrny1gvoxeh47lppviczslm6i9jr",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQRe_C2hCmAgWX7nsGMsOAVA0kpV0Z765NutDtf-_9lwi4rSVsPS1hZnERoMTpdySMj1R3wnestyZjq-syk9wVedAup8bpeT3cv4OCvXxrio4MZgKFGZC8OiM59hAVU1ZOG4s6DzQyjM6axBgVDOizS2CBdRLvDzZFOQg:1wcHfE:65yC4a3hqI5L9XFGmZZ3UD1X1CW1g-be2woH9eyBADw",
+    "expire_date": "2026-07-08T07:04:48.690Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "fjhx9whjf0fvkx3depn3xu9mzebnzpcb",
+  "fields": {
+    "session_data": ".eJxVjrGOwyAQRP9l68gy7JkYV6f0-Qa0wNomwRDZuDhF_vfDUpqUM29mNG-IeQrJUCm8vMoGwxsemSMv9BcoiVb9TguF2Li8nMzlPRUY5KX23NNUESIM7XFcwNBeZrNvvJrgYQANX54l9-R0Av-gNOW6mMoabHNGmg_dmnv2HG-f7NfATNtc21Ki0gp7p6UgVNx5oa5irE-vbc9-7JSyOI7WMQrse21lR_zjSCN26BXB8Q_TtVEX:1wbiaq:Wji288ZniBmLSYrFzT2P7Ajk5LSIr-Dt4ygfd7LcVFY",
+    "expire_date": "2026-07-06T17:37:56.960Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "yka1ilj0f62w6d0d80snbwxzylsijat1",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQRe_C2hCmAgWX7nsGMsOAVA0kpV0Z765NutDtf-_9lwi4rSVsPS1hZnERoMTpdySMj1R3wnestyZjq-syk9wVedAup8bpeT3cv4OCvXxrio4MZgKFGZC8OiM59hAVU1ZOG4s6DzQyjM6axBgVDOizS2CBdRLvDzZFOQg:1wcIfv:T3T6a6br55AAoxFBgSoAH5FZqd40bNypvmZBnnO3Cfk",
+    "expire_date": "2026-07-08T08:09:35.839Z"
+  }
+},
+{
+  "model": "users.profile",
+  "pk": 8,
+  "fields": {
+    "user": [
+      "joe.mapelu@strathmore.edu"
+    ],
+    "role": "admin",
+    "email_verified": true,
+    "school_id": "",
+    "course": "",
+    "year_of_study": null,
+    "organization_name": "",
+    "organization_location": "",
+    "organization_main_road": "",
+    "organization_latitude": null,
+    "organization_longitude": null,
+    "attachment_type": ""
+  }
+},
+{
+  "model": "users.profile",
+  "pk": 9,
+  "fields": {
+    "user": [
+      "dollan.ochele@strathmore.edu"
+    ],
+    "role": "student",
+    "email_verified": false,
+    "school_id": "",
+    "course": "",
+    "year_of_study": null,
+    "organization_name": "",
+    "organization_location": "",
+    "organization_main_road": "",
+    "organization_latitude": null,
+    "organization_longitude": null,
+    "attachment_type": ""
+  }
+}
+]

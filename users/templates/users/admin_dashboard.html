@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Administrator Dashboard</h2>
+ <div class="col-md-4">
+        <div class="card p-3 shadow-sm">
+            <h5>Total Students</h5>
+            <h2>{{ total_students }}</h2>
+            <a href="{% url 'admin_students' %}" class="btn btn-outline-primary btn-sm">View Students</a>
+        </div>
+
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm">
+            <h5>Pending Assessments</h5>
+            <h2>{{ pending_assessments }}</h2>
+            <a href="{% url 'pending_assessments' %}" class="btn btn-outline-primary btn-sm">View Pending</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm">
+            <h5>Completed Assessments</h5>
+            <h2>{{ done_assessments }}</h2>
+            <a href="{% url 'done_assessments' %}" class="btn btn-outline-success btn-sm">View Completed</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <strong>Student Management</strong>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">Open the full student management page to filter by organization and assign students to supervisors.</p>
+                <a href="{% url 'admin_students' %}" class="btn btn-primary">Open Students Page</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <strong>Supervisor Management</strong>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">Open the supervisor list page to review supervisors and current student loads by organization.</p>
+                <a href="{% url 'admin_supervisors' %}" class="btn btn-outline-primary">Open Supervisors Page</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mt-4">
+    <div class="card-header">
+        <strong>User Role Management</strong>
+        <div class="small text-muted">Only verified users can be promoted to Supervisor or Administrator.</div>
+    </div>
+    <div class="card-body p-0">
+        <table class="table mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Verified</th>
+                    <th>Current Role</th>
+                    <th>Change Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_item in manageable_users %}
+                    <tr>
+                        <td>{{ user_item.first_name }} {{ user_item.last_name }}</td>
+                        <td>{{ user_item.email }}</td>
+                        <td>
+                            {% if user_item.profile.email_verified %}
+                                <span class="badge text-bg-success">Verified</span>
+                            {% else %}
+                                <span class="badge text-bg-secondary">Not Verified</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user_item.profile.get_role_display }}</td>
+                        <td>
+                            <form method="post" action="{% url 'change_user_role' %}" class="d-flex gap-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="user_id" value="{{ user_item.id }}">
+                                <select name="role" class="form-select form-select-sm" style="max-width: 180px;" {% if user_item.id == request.user.id %}disabled{% endif %}>
+                                    <option value="student" {% if user_item.profile.role == 'student' %}selected{% endif %}>Student</option>
+                                    <option value="supervisor" {% if user_item.profile.role == 'supervisor' %}selected{% endif %}>Supervisor</option>
+                                    <option value="admin" {% if user_item.profile.role == 'admin' %}selected{% endif %}>Administrator</option>
+                                </select>
+                                {% if user_item.id == request.user.id %}
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Current Admin</button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">Update</button>
+                                {% endif %}
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5">No users found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
