@@ -1,0 +1,46 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login - Strathmore University</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-student-login">
+    <div class="login-container">
+        <div class="login-header">
+            <img src="images/images.png" alt="Strathmore University logo">
+            <h2>Student Login</h2>
+            <p>Login in to access your attachment portal</p>
+        </div>
+
+        <form id="studentLoginForm">
+            <div class="form-group">
+                <label><i class="fas fa-envelope"></i> Email Address</label>
+                <input type="email" id="studentEmail" placeholder="you@strathmore.edu" required>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Password</label>
+                <input type="password" id="studentPassword" placeholder="Enter your password" required>
+            </div>
+
+            <div id="errorMessage" class="error-message">
+                <i class="fas fa-exclamation-circle"></i> Invalid login . Try again.
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+            <button type="button" class="login-btn secondary" id="backHomeBtn">Back Home</button>
+        </form>
+
+        <p class="error-message security-note">
+            <i class="fas fa-shield-alt"></i> Secured by Strathmore University
+        </p>
+        </div>
+
+    <script src="common.js"></script>
+    <script src="student-login.js"></script>
+</body>
+</html>

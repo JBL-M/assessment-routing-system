@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Strathmore University</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="page-student-dashboard">
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#" class="active" data-section="dashboard"> <span>Dashboard</span></a></li>
+            <li><a href="#" data-section="applications"> <span>Applications</span></a></li>
+            <li><a href="#" data-section="attachments"> <span>My Attachments</span></a></li>
+            <li><a href="#" data-section="reports"> <span>Assessment Report</span></a></li>
+            <li><a href="#" data-section="notifications"> <span>Notifications</span></a></li>
+            <li class="logout-link"><a href="student-login.html"> <span>Sign out</span></a></li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <div class="top-bar">
+            </div>
+            <div class="user-info">
+            <span id="studentEmailDisplay"></span>
+            
+            </div>
+
+        <div id="dashboardSection" class="page-section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue"></div>
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Ongoing Attachments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"></div>
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Pending Attachment Applications</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"></div>
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Successfully Completed Attachments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red"></div>
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Rejected Attachment Applications</div>
+                </div>
+            </div>
+        </div>
+
+        <section id="applicationsSection" class="page-section">
+            <div class="form-card">
+                <h3> Apply for New Attachment</h3>
+                <form id="attachmentForm">
+                        <label>Attachment Type</label>
+                        <select id="attachmentType" required>
+                            <option value="">Select Attachment Type</option>
+                            <option value="Service-Based Learning">Service-Based Learning</option>
+                            <option value="Work-Based Learning">Work-Based Learning</option>
+                        </select>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Start Period</label>
+                            <input type="date" id="startPeriod" required>
+                        </div>
+                        <div class="form-group">
+                            <label>End Period</label>
+                            <input type="date" id="endPeriod" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Organisation</label>
+                        <input type="text" id="organisation" placeholder="Enter organisation name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Organisation Location</label>
+                        <input type="text" id="organisationLocation" placeholder="Enter organisation location" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Course</label>
+                            <input type="text" id="courseName" placeholder="Enter course name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Student Number </label>
+                            <input type="text" id="studentNumber" placeholder="Enter student number" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                     Submit Application
+                    </button>
+                </form>
+                <div id="successMessage" class="success-msg">
+                    <p>Application submitted successfully.</p>
+                    <p id="message"></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="attachmentsSection" class="page-section">
+            <div class="form-card">
+                <h3>My Attachments</h3>
+                <div id="attachmentList"></div>
+            </div>
+        </section>
+
+        <section id="reportsSection" class="page-section">
+            <div class="form-card">
+                <h3>Assessment Report</h3>
+                <form id="assessmentReportForm">
+                    <div class="form-group">
+                        <label>Organisation</label>
+                        <input type="text" id="reportOrganisation" placeholder="Enter organisation assessed at" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Have you been assessed?</label>
+                            <select id="reportAssessed" required>
+                                <option value="">Select status</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Date of assessment</label>
+                            <input type="date" id="reportDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Remarks</label>
+                        <input type="text" id="reportRemarks" placeholder="Any details for admin" required>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Submit Report</button>
+                </form>
+                <div id="reportSuccessMessage" class="success-msg">
+                    <p>Assessment report submitted successfully.</p>
+                    <p id="reportMessage"></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="notificationsSection" class="page-section">
+            <div class="form-card">
+                <h3>Notifications</h3>
+                <div id="notificationList" class="notification-list"></div>
+            </div>
+        </section>
+    <script src="common.js"></script>
+    <script src="student-dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-home page-reports">
+  <header class="top-header">
+    <div class="header-container">REPORTS DASHBOARD</div>
+  </header>
+
+  <main class="page-shell">
+    <section class="dashboard-intro-card">
+      <h1>Attachment Reports</h1>
+      <div class="page-actions">
+        <a href="admin-dashboard.html" class="btn-link-solid">Back to Admin Dashboard</a>
+      </div>
+    </section>
+
+    <section class="report-kpi-grid">
+      <article class="report-kpi-card">
+        <h4>Total Student Reports</h4>
+        <p id="totalReports" class="kpi-number">0</p>
+      </article>
+      <article class="report-kpi-card">
+        <h4>Successful Assessments</h4>
+        <p id="successfulAssessments" class="kpi-number">0</p>
+      </article>
+      <article class="report-kpi-card">
+        <h4>Estimated Pending</h4>
+        <p id="pendingAssessments" class="kpi-number">0</p>
+      </article>
+    </section>
+
+    <section class="table-card">
+      <h3>Student Assessment Reports</h3>
+      <table class="report-table" aria-label="Student assessment reports table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Email</th>
+            <th>Organisation</th>
+            <th>Assessed</th>
+            <th>Assessment Date</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody id="assessmentReportRows">
+          <tr>
+            <td colspan="6">No student assessment reports submitted yet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <script src="reports.js"></script>
+</body>
+</html>
