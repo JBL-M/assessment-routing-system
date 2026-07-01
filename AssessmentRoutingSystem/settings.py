@@ -61,7 +61,7 @@ INSTALLED_APPS = [
     
     'main',
     'users',
-    'routing',
+    'Routing',
 ]
 
 MIDDLEWARE = [

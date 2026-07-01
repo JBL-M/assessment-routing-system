@@ -11,7 +11,7 @@ from django.core.mail import send_mail
 from django.db.models import Count, Q
 from django.urls import reverse
 from .models import Assessment, Profile
-from routing.models import SupervisorStudentAssignment
+from Routing.models import SupervisorStudentAssignment
 import time
 import logging
 
