@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Assessment Reports</h2>
+<p class="text-muted">Download CSV or PDF reports for pending and completed student assessments.</p>
+
+<div class="mb-3">
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary btn-sm">Back to Admin Dashboard</a>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header"><strong>Pending Assessments</strong></div>
+            <div class="card-body">
+                <p class="mb-2">Total pending: <strong>{{ pending_count }}</strong></p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'download_assessments_csv' 'pending' %}" class="btn btn-outline-primary btn-sm">Download CSV</a>
+                    <a href="{% url 'download_assessments_pdf' 'pending' %}" class="btn btn-outline-dark btn-sm">Download PDF</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header"><strong>Completed Assessments</strong></div>
+            <div class="card-body">
+                <p class="mb-2">Total completed: <strong>{{ done_count }}</strong></p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'download_assessments_csv' 'done' %}" class="btn btn-outline-success btn-sm">Download CSV</a>
+                    <a href="{% url 'download_assessments_pdf' 'done' %}" class="btn btn-outline-dark btn-sm">Download PDF</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

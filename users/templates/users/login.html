@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% block body_class %}page-student-login{% endblock %}
+
 {% block content %}
 
 <div class="row justify-content-center">
@@ -11,8 +13,9 @@
             <div class="card-body">
 
                 <h3 class="text-center">
-                    Login
+                    {{ login_meta.title }}
                 </h3>
+                <p class="text-center text-muted mb-4">{{ login_meta.subtitle }}</p>
 
                 <form method="POST">
 
@@ -45,18 +48,7 @@
 
                     </div>
 
-                    <div class="mb-3">
-
-                        <label>Role</label>
-
-                        <select name="role" class="form-select" required>
-                            <option value="" selected disabled>Select role</option>
-                            <option value="student">Student</option>
-                            <option value="admin">Administrator</option>
-                            <option value="supervisor">Supervisor</option>
-                        </select>
-
-                    </div>
+                    <input type="hidden" name="role" value="{{ forced_role }}">
 
                     <button
                         class="btn btn-primary w-100">
@@ -69,6 +61,7 @@
 
                         Don't have an account? Register
                     </a>
+                    <a href="{% url 'home' %}" class="btn btn-link w-100">Back to Home</a>
 
                 </form>
 

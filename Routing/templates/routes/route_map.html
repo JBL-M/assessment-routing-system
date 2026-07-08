@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+    #optimized-route-map {
+        height: 620px;
+        border-radius: 0.6rem;
+        border: 2px solid #198754;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+    }
+
+    .organization-students-table th,
+    .organization-students-table td {
+        vertical-align: middle;
+    }
+
+    .org-chip {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 999px;
+        background: #e9f7ef;
+        color: #146c43;
+        font-size: 0.78rem;
+        font-weight: 600;
+    }
+
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+
+        #optimized-route-map {
+            height: 520px !important;
+            box-shadow: none !important;
+            border-width: 1px !important;
+        }
+    }
+</style>
+
+<h2>Optimized Route Map</h2>
+<p class="text-muted">Map view of the generated assessment route from your saved supervisor location.</p>
+
+<div class="mb-3 d-flex gap-2 flex-wrap no-print">
+    <a href="{{ table_url }}?learning_mode={{ selected_learning_mode|urlencode }}&visit_location={{ selected_visit_location|urlencode }}&road={{ selected_road|urlencode }}&search={{ selected_search|urlencode }}&current_location={{ current_location|urlencode }}&generate_route=1" class="btn btn-outline-primary">Open Table Page</a>
+    <a href="{% url 'view_assigned_students' %}?learning_mode={{ selected_learning_mode|urlencode }}&visit_location={{ selected_visit_location|urlencode }}&road={{ selected_road|urlencode }}&search={{ selected_search|urlencode }}&current_location={{ current_location|urlencode }}" class="btn btn-outline-secondary">Back To Planner</a>
+    <button type="button" class="btn btn-dark" id="print-route-map">Print Map</button>
+</div>
+
+{% if generate_route %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <strong>Optimized Route Map (Leaflet + OpenStreetMap)</strong>
+    </div>
+    <div class="card-body">
+        <div id="optimized-route-map"></div>
+        <div class="text-muted small mt-2">Green line shows route path. Markers show each stop and student details.</div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <strong>Organization Student Details</strong>
+        <span class="org-chip">{{ organization_summaries|length }} organization{{ organization_summaries|length|pluralize }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-bordered table-sm mb-0 organization-students-table">
+                <thead>
+                    <tr>
+                        <th>Organization</th>
+                        <th>Main Road</th>
+                        <th>Attachment Type</th>
+                        <th>Student Name</th>
+                        <th>School ID</th>
+                        <th>Course</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for org in organization_summaries %}
+                        {% for student in org.students %}
+                            <tr>
+                                {% if forloop.first %}
+                                    <td rowspan="{{ org.students_count }}">
+                                        <div class="fw-semibold">{{ org.organization_name }}</div>
+                                        <div class="text-muted small">{{ org.organization_location }}</div>
+                                    </td>
+                                    <td rowspan="{{ org.students_count }}">{{ org.organization_main_road }}</td>
+                                    <td rowspan="{{ org.students_count }}">{{ org.attachment_types }}</td>
+                                {% endif %}
+                                <td>{{ student.full_name }}</td>
+                                <td>{{ student.school_id }}</td>
+                                <td>{{ student.course }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% empty %}
+                        <tr>
+                            <td colspan="6">No organization details available for the current route filters.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{{ optimized_map_points|json_script:"optimized-map-points" }}
+{{ route_start_point|json_script:"route-start-point" }}
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="{% static 'routing/js/route_map.js' %}"></script>
+{% endblock %}

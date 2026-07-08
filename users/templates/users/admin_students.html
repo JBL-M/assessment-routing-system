@@ -92,4 +92,86 @@
         </table>
     </div>
 </div>
+
+<div class="row g-3 mt-1">
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">
+                <strong>Organization Summary</strong>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>Organization</th>
+                            <th>Students</th>
+                            <th>Supervisors</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for org in organization_summaries %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'admin_students' %}?organization={{ org.organization_name|urlencode }}">{{ org.organization_name }}</a>
+                                </td>
+                                <td>{{ org.student_count }}</td>
+                                <td>{{ org.supervisor_count }}</td>
+                                <td>{{ org.total_count }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4">No organization membership records found.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">
+                <strong>
+                    {% if selected_organization %}
+                        Members In {{ selected_organization }} ({{ selected_organization_members|length }})
+                    {% else %}
+                        Members In Selected Organization
+                    {% endif %}
+                </strong>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in selected_organization_members %}
+                            <tr>
+                                <td>{{ member.first_name }} {{ member.last_name }}</td>
+                                <td>{{ member.email }}</td>
+                                <td>{{ member.profile.get_role_display }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3">
+                                    {% if selected_organization %}
+                                        No members found in this organization.
+                                    {% else %}
+                                        Select an organization to view members.
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

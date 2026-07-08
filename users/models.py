@@ -33,11 +33,8 @@ class Profile(models.Model):
     organization_longitude = models.FloatField(null=True, blank=True)
 
     ATTACHMENT_TYPE_CHOICES = [
-        ('industrial', 'Industrial Attachment'),
-        ('internship', 'Internship'),
-        ('research', 'Research Attachment'),
-        ('fieldwork', 'Field Work'),
-        ('other', 'Other'),
+        ('service_based', 'Service-Based Learning'),
+        ('work_based', 'Work-Based Learning'),
     ]
 
     attachment_type = models.CharField(

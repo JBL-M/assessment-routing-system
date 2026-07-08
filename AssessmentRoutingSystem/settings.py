@@ -61,7 +61,8 @@ INSTALLED_APPS = [
     
     'main',
     'users',
-    'routing',
+    'Routing',
+    'reports',
 ]
 
 MIDDLEWARE = [
@@ -158,7 +159,7 @@ STATIC_URL = 'static/'
 # Organization email restriction (comma-separated domains in env).
 ORG_EMAIL_DOMAINS = [
     domain.strip().lower()
-    for domain in os.getenv('ORG_EMAIL_DOMAINS', 'strathmore.edu').split(',')
+    for domain in os.getenv('ORG_EMAIL_DOMAINS', '').split(',')
     if domain.strip()
 ]
 
@@ -179,11 +180,11 @@ else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@assessment-routing.local')
 
-LOGIN_URL = '/users/login/'
+LOGIN_URL = '/'
 
 LOGIN_REDIRECT_URL = '/'
 
-LOGOUT_REDIRECT_URL = '/users/login/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Security hardening defaults.
 SESSION_COOKIE_HTTPONLY = True

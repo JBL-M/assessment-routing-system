@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.conf import settings
 from .models import Profile
 
 class RegisterForm(forms.ModelForm):
@@ -47,13 +46,6 @@ class RegisterForm(forms.ModelForm):
 
     def clean_email(self):
         email = self.cleaned_data['email'].strip().lower()
-        domain = email.split('@')[-1] if '@' in email else ''
-        allowed_domains = getattr(settings, 'ORG_EMAIL_DOMAINS', ['strathmore.edu'])
-
-        if domain not in allowed_domains:
-            raise forms.ValidationError(
-                f"Only organizational email addresses are allowed: {', '.join(allowed_domains)}."
-            )
 
         if User.objects.filter(username__iexact=email).exists():
             raise forms.ValidationError('An account with this email already exists.')

@@ -11,7 +11,7 @@ from django.core.mail import send_mail
 from django.db.models import Count, Q
 from django.urls import reverse
 from .models import Assessment, Profile
-from routing.models import SupervisorStudentAssignment
+from Routing.models import SupervisorStudentAssignment
 import time
 import logging
 
@@ -104,6 +104,32 @@ def _is_admin_user(user):
     return getattr(getattr(user, 'profile', None), 'role', None) == 'admin'
 
 
+def _login_context_for_role(role):
+    role_details = {
+        'student': {
+            'title': 'Student Login',
+            'subtitle': 'Sign in to access your student dashboard.',
+        },
+        'supervisor': {
+            'title': 'Supervisor Login',
+            'subtitle': 'Sign in to access your supervisor dashboard.',
+        },
+        'admin': {
+            'title': 'Administrator Login',
+            'subtitle': 'Sign in to access administrator tools.',
+        },
+    }
+    return role_details.get(role)
+
+
+def _render_role_login(request, role):
+    context = {
+        'forced_role': role,
+        'login_meta': _login_context_for_role(role),
+    }
+    return render(request, 'users/login.html', context)
+
+
 def _normalize_org_name(value):
     return (value or '').strip().lower()
 
@@ -178,38 +204,52 @@ def register_view(request):
 
 def login_view(request):
 
+    role = request.GET.get('role', '').strip().lower()
+    allowed_roles = {'student', 'admin', 'supervisor'}
+    if role in allowed_roles:
+        return redirect(f"{reverse(f'{role}_login')}")
+
+    if request.user.is_authenticated:
+        return redirect(_redirect_for_role(request.user))
+
+    return redirect('home')
+
+
+def _role_login_view(request, role):
+
+    allowed_roles = {'student', 'admin', 'supervisor'}
+    if role not in allowed_roles:
+        messages.error(request, 'Invalid role selected.')
+        return redirect('home')
+
+    if request.user.is_authenticated:
+        current_role = getattr(getattr(request.user, 'profile', None), 'role', None)
+        if current_role != role:
+            role_label = current_role or 'an assigned user role'
+            messages.error(request, f'You are already signed in as {role_label}. Please use your own dashboard.')
+        return redirect(_redirect_for_role(request.user))
+
     if request.method == 'POST':
 
         email = request.POST.get('email', '').strip().lower()
         password = request.POST.get('password', '')
-        selected_role = request.POST.get('role', '').strip().lower()
+        selected_role = role
 
-        if not email or not password or not selected_role:
-            messages.error(request, 'Please enter email, password, and select your role.')
-            return render(request, 'users/login.html')
-
-        allowed_roles = {'student', 'admin', 'supervisor'}
-        if selected_role not in allowed_roles:
-            messages.error(request, 'Invalid role selected.')
-            return render(request, 'users/login.html')
-
-        domain = email.split('@')[-1] if '@' in email else ''
-        allowed_domains = getattr(settings, 'ORG_EMAIL_DOMAINS', ['strathmore.edu'])
-        if domain not in allowed_domains:
-            messages.error(request, f"Use your organizational email address ({', '.join(allowed_domains)}).")
-            return render(request, 'users/login.html')
+        if not email or not password:
+            messages.error(request, 'Please enter your email and password.')
+            return _render_role_login(request, role)
 
         lock_seconds = _get_lock_seconds_remaining(request, email)
         if lock_seconds > 0:
             messages.error(request, f'Too many failed login attempts. Try again in {lock_seconds} seconds.')
-            return render(request, 'users/login.html')
+            return _render_role_login(request, role)
 
         matched_user = User.objects.filter(username__iexact=email).first()
 
         if not matched_user:
             _register_login_failure(request, email)
             messages.error(request, 'No account was found with that email address.')
-            return render(request, 'users/login.html')
+            return _render_role_login(request, role)
 
         user = authenticate(
             request,
@@ -226,7 +266,7 @@ def login_view(request):
 
             if profile.role != selected_role:
                 messages.error(request, f"This account is registered as {profile.get_role_display()}. Select the correct role to continue.")
-                return render(request, 'users/login.html')
+                return _render_role_login(request, role)
 
             if not profile.email_verified:
                 try:
@@ -238,7 +278,7 @@ def login_view(request):
                         messages.error(request, f'Your email is not verified. Verification email could not be resent: {exc}')
                     else:
                         messages.error(request, 'Your email is not verified. Verification email could not be resent. Try again later.')
-                return render(request, 'users/login.html')
+                return _render_role_login(request, role)
 
             _clear_login_failures(request, email)
             login(request, user)
@@ -249,17 +289,26 @@ def login_view(request):
         _register_login_failure(request, email)
         messages.error(request, 'Incorrect password. Please try again.')
 
-    return render(
-        request,
-        'users/login.html'
-    )
+    return _render_role_login(request, role)
+
+
+def student_login_view(request):
+    return _role_login_view(request, 'student')
+
+
+def supervisor_login_view(request):
+    return _role_login_view(request, 'supervisor')
+
+
+def admin_login_view(request):
+    return _role_login_view(request, 'admin')
 
 
 def logout_view(request):
 
     logout(request)
 
-    return redirect('login')
+    return redirect('home')
 
 
 def resend_verification_view(request):
@@ -269,12 +318,6 @@ def resend_verification_view(request):
     email = request.POST.get('email', '').strip().lower()
     if not email:
         messages.error(request, 'Enter your email to resend verification.')
-        return redirect('login')
-
-    domain = email.split('@')[-1] if '@' in email else ''
-    allowed_domains = getattr(settings, 'ORG_EMAIL_DOMAINS', ['strathmore.edu'])
-    if domain not in allowed_domains:
-        messages.error(request, f"Use your organizational email address ({', '.join(allowed_domains)}).")
         return redirect('login')
 
     user = User.objects.filter(username__iexact=email).first()
@@ -491,6 +534,25 @@ def admin_students_view(request):
 
     supervisors = list(_supervisors_with_load(selected_org))
 
+    organization_summaries = Profile.objects.exclude(
+        organization_name__isnull=True
+    ).exclude(
+        organization_name__exact=''
+    ).values('organization_name').annotate(
+        student_count=Count('id', filter=Q(role='student')),
+        supervisor_count=Count('id', filter=Q(role='supervisor')),
+    ).order_by('organization_name')
+
+    for item in organization_summaries:
+        item['total_count'] = item['student_count'] + item['supervisor_count']
+
+    selected_org_members = []
+    if selected_org:
+        selected_org_members = User.objects.select_related('profile').filter(
+            profile__organization_name__iexact=selected_org,
+            profile__role__in=['student', 'supervisor'],
+        ).order_by('profile__role', 'first_name', 'last_name', 'email')
+
     student_rows = [
         {
             'student': student,
@@ -504,6 +566,8 @@ def admin_students_view(request):
         'supervisor_options': supervisors,
         'organization_options': _organization_choices(),
         'selected_organization': selected_org,
+        'organization_summaries': organization_summaries,
+        'selected_organization_members': selected_org_members,
     }
 
     return render(request, 'users/admin_students.html', context)
@@ -527,6 +591,21 @@ def admin_supervisors_view(request):
     }
 
     return render(request, 'users/admin_supervisors.html', context)
+
+
+@login_required
+def admin_user_roles_view(request):
+    if not _is_admin_user(request.user):
+        messages.error(request, 'You are not allowed to access user role management.')
+        return redirect(_redirect_for_role(request.user))
+
+    _ensure_profiles_for_all_users()
+
+    manageable_users = User.objects.select_related('profile').order_by('email')
+    context = {
+        'manageable_users': manageable_users,
+    }
+    return render(request, 'users/admin_user_roles.html', context)
 
 
 @login_required
@@ -629,7 +708,7 @@ def change_user_role_view(request):
 
     if request.method != 'POST':
         messages.error(request, 'Invalid request method for role change.')
-        return redirect('admin_dashboard')
+        return redirect('admin_user_roles')
 
     user_id = request.POST.get('user_id', '').strip()
     new_role = request.POST.get('role', '').strip().lower()
@@ -637,12 +716,12 @@ def change_user_role_view(request):
 
     if new_role not in allowed_roles:
         messages.error(request, 'Invalid role selected.')
-        return redirect('admin_dashboard')
+        return redirect('admin_user_roles')
 
     target_user = User.objects.filter(id=user_id).first()
     if not target_user:
         messages.error(request, 'Selected user was not found.')
-        return redirect('admin_dashboard')
+        return redirect('admin_user_roles')
 
     target_profile, _ = Profile.objects.get_or_create(
         user=target_user,
@@ -651,16 +730,16 @@ def change_user_role_view(request):
 
     if target_user.id == request.user.id and new_role != 'admin':
         messages.error(request, 'You cannot remove your own administrator role.')
-        return redirect('admin_dashboard')
+        return redirect('admin_user_roles')
 
     if new_role in {'supervisor', 'admin'} and not target_profile.email_verified:
         messages.error(request, 'Only email-verified users can be promoted to supervisor or administrator.')
-        return redirect('admin_dashboard')
+        return redirect('admin_user_roles')
 
     target_profile.role = new_role
     target_profile.save(update_fields=['role'])
     messages.success(request, f"{target_user.email} role updated to {target_profile.get_role_display()}.")
-    return redirect('admin_dashboard')
+    return redirect('admin_user_roles')
 
 
 @login_required
@@ -714,4 +793,100 @@ def supervisor_dashboard(request):
         messages.error(request, 'You are not allowed to access the supervisor page.')
         return redirect(_redirect_for_role(request.user))
 
-    return render(request, 'users/supervisor_dashboard.html')
+    assignments = SupervisorStudentAssignment.objects.select_related(
+        'student',
+        'student__profile',
+    ).filter(
+        supervisor=request.user,
+        student__profile__role='student',
+    ).order_by('student__first_name', 'student__last_name', 'student__email')
+
+    assigned_student_ids = [assignment.student_id for assignment in assignments]
+    latest_assessments = {}
+    if assigned_student_ids:
+        assessments = Assessment.objects.filter(student_id__in=assigned_student_ids).order_by(
+            'student_id',
+            '-updated_at',
+            '-created_at',
+        )
+        for assessment in assessments:
+            latest_assessments.setdefault(assessment.student_id, assessment)
+
+    assigned_student_rows = []
+    for assignment in assignments:
+        student = assignment.student
+        profile = getattr(student, 'profile', None)
+        assessment = latest_assessments.get(student.id)
+
+        if assessment:
+            status = assessment.get_status_display()
+            title = assessment.title
+            can_mark_done = assessment.status != 'done'
+        else:
+            status = 'Not started'
+            title = 'No assessment created yet'
+            can_mark_done = True
+
+        assigned_student_rows.append(
+            {
+                'student': student,
+                'profile': profile,
+                'assessment': assessment,
+                'assessment_title': title,
+                'assessment_status': status,
+                'can_mark_done': can_mark_done,
+            }
+        )
+
+    saved_point = request.session.get('supervisor_start_point', {})
+    return render(
+        request,
+        'users/supervisor_dashboard.html',
+        {
+            'saved_current_location': saved_point.get('label', ''),
+            'assigned_student_rows': assigned_student_rows,
+        }
+    )
+
+
+@login_required
+def supervisor_mark_assessment_done_view(request):
+    role = getattr(getattr(request.user, 'profile', None), 'role', None)
+    if role != 'supervisor':
+        messages.error(request, 'You are not allowed to perform this action.')
+        return redirect(_redirect_for_role(request.user))
+
+    if request.method != 'POST':
+        return redirect('supervisor_dashboard')
+
+    student_id = request.POST.get('student_id', '').strip()
+    assignment = SupervisorStudentAssignment.objects.select_related('student').filter(
+        supervisor=request.user,
+        student_id=student_id,
+        student__profile__role='student',
+    ).first()
+
+    if not assignment:
+        messages.error(request, 'Student assignment not found for your account.')
+        return redirect('supervisor_dashboard')
+
+    student = assignment.student
+    assessment = Assessment.objects.filter(student=student).order_by('-updated_at', '-created_at').first()
+
+    if not assessment:
+        assessment = Assessment.objects.create(
+            student=student,
+            title='Supervisor Assessment',
+            status='done',
+        )
+        messages.success(request, f'Assessment marked as completed for {student.get_full_name().strip() or student.email}.')
+        return redirect('supervisor_dashboard')
+
+    if assessment.status == 'done':
+        messages.info(request, f'Assessment is already completed for {student.get_full_name().strip() or student.email}.')
+        return redirect('supervisor_dashboard')
+
+    assessment.status = 'done'
+    assessment.save(update_fields=['status', 'updated_at'])
+    messages.success(request, f'Assessment marked as completed for {student.get_full_name().strip() or student.email}.')
+    return redirect('supervisor_dashboard')

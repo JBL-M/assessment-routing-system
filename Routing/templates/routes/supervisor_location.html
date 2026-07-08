@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-9">
+        <div class="card shadow">
+            <div class="card-body">
+                <h3>Supervisor Location</h3>
+                <p class="text-muted">Set your map location here. This location is used as the reference start point for optimized route generation.</p>
+
+                <form method="post" class="row g-3 mb-3">
+                    {% csrf_token %}
+                    <div class="col-md-6">
+                        <label class="form-label">Current Area</label>
+                        <input type="text" name="current_location" value="{{ saved_current_location }}" class="form-control" placeholder="e.g. Upper Hill">
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-end">
+                        <button type="button" id="use-browser-location" class="btn btn-outline-primary">Use My Current Device Location</button>
+                    </div>
+
+                    <div class="col-12">
+                        <div id="supervisor-location-map" style="height: 380px; border-radius: 0.5rem;"></div>
+                        <small class="text-muted">Click on the map to place or move your location marker.</small>
+                    </div>
+
+                    <input type="hidden" id="current-lat-input" name="current_lat" value="{{ saved_current_lat }}">
+                    <input type="hidden" id="current-lng-input" name="current_lng" value="{{ saved_current_lng }}">
+
+                    <div class="col-12 d-flex gap-2 flex-wrap">
+                        <button type="submit" class="btn btn-primary">Save Supervisor Location</button>
+                        <a href="{% url 'view_assigned_students' %}" class="btn btn-outline-success">Open Route Planner</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="{% static 'routing/js/supervisor_location.js' %}"></script>
+{% endblock %}
